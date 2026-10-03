@@ -4,43 +4,43 @@ import pandas as pd
 st.set_page_config(page_title="NHL Props & Goal Predictor Master Edge", layout="wide")
 
 st.title("🏒 NHL Goal & Point Props Edge Finder")
-st.caption("Dedicated Workspace: Accurate Book Pricing, L3G Form, Line Discrepancies & Value Signals")
+st.caption("Dedicated Workspace: Accurate Book Pricing, L3G Form & Market Lines")
 
 # -------------------------------------------------------------
-# 1. NHL MASTER SLATE WITH ACCURATE PRICING
+# 1. CLEANED NHL MASTER SLATE
 # -------------------------------------------------------------
 @st.cache_data(ttl=3600)
 def load_nhl_board():
     data = [
         {
             "Player": "Nathan MacKinnon", "Team": "COL", "Pos": "F", "Opponent": "vs CHI", "Status": "🟢 Active",
-            "Prop Type": "Points (1.5)", "Model Projection": "1.82", 
-            "DraftKings Line": "1.5", "DK Odds": "-105", "FanDuel Line": "1.5", "FD Odds": "-115",
-            "L3G Points": "2.3", "L3G Shots On Goal": "4.8", "Matchup Rank (Def)": "24th (Weak)"
+            "Prop Market": "Points Over/Under", "Line": "1.5", "Model Projection": "1.82", 
+            "DraftKings Odds": "-105", "FanDuel Odds": "-115",
+            "L3G Points": "2.3", "L3G SOG": "4.8", "Matchup Rank": "24th (Weak)"
         },
         {
             "Player": "Connor McDavid", "Team": "EDM", "Pos": "F", "Opponent": "@ CGY", "Status": "🟢 Active",
-            "Prop Type": "Points (1.5)", "Model Projection": "1.95", 
-            "DraftKings Line": "1.5", "DK Odds": "+100", "FanDuel Line": "1.5", "FD Odds": "-105",
-            "L3G Points": "2.6", "L3G Shots On Goal": "4.5", "Matchup Rank (Def)": "28th (Weak)"
+            "Prop Market": "Points Over/Under", "Line": "1.5", "Model Projection": "1.95", 
+            "DraftKings Odds": "+100", "FanDuel Odds": "-105",
+            "L3G Points": "2.6", "L3G SOG": "4.5", "Matchup Rank": "28th (Weak)"
         },
         {
             "Player": "Auston Matthews", "Team": "TOR", "Pos": "F", "Opponent": "vs MTL", "Status": "🟢 Active",
-            "Goal Prop": "Anytime Goal", "Model Goal Prob": "48.5%", 
-            "DraftKings Line": "-115", "DK Odds": "-115", "FanDuel Line": "-120", "FD Odds": "-120",
-            "L3G Goals": "1.2", "L3G Shots On Goal": "5.2", "Matchup Rank (Def)": "21st (Weak)"
+            "Prop Market": "Anytime Goal Scorer", "Line": "Yes", "Model Projection": "48.5%", 
+            "DraftKings Odds": "-115", "FanDuel Odds": "-120",
+            "L3G Goals": "1.2", "L3G SOG": "5.2", "Matchup Rank": "21st (Weak)"
         },
         {
             "Player": "Cale Makar", "Team": "COL", "Pos": "D", "Opponent": "vs CHI", "Status": "🟢 Active",
-            "Prop Type": "Points (0.5)", "Model Projection": "0.88", 
-            "DraftKings Line": "0.5", "DK Odds": "-140", "FanDuel Line": "0.5", "FD Odds": "-145",
-            "L3G Points": "1.1", "L3G Shots On Goal": "3.4", "Matchup Rank (Def)": "24th (Weak)"
+            "Prop Market": "Points Over/Under", "Line": "0.5", "Model Projection": "0.88", 
+            "DraftKings Odds": "-140", "FanDuel Odds": "-145",
+            "L3G Points": "1.1", "L3G SOG": "3.4", "Matchup Rank": "24th (Weak)"
         },
         {
             "Player": "David Pastrnak", "Team": "BOS", "Pos": "F", "Opponent": "@ BUF", "Status": "🟢 Active",
-            "Prop Type": "Points (1.5)", "Model Projection": "1.42", 
-            "DraftKings Line": "1.5", "DK Odds": "+125", "FanDuel Line": "1.5", "FD Odds": "+120",
-            "L3G Points": "1.6", "L3G Shots On Goal": "5.0", "Matchup Rank (Def)": "14th (Avg)"
+            "Prop Market": "Points Over/Under", "Line": "1.5", "Model Projection": "1.42", 
+            "DraftKings Odds": "+125", "FanDuel Odds": "+120",
+            "L3G Points": "1.6", "L3G SOG": "5.0", "Matchup Rank": "14th (Avg)"
         }
     ]
     return pd.DataFrame(data)
@@ -62,18 +62,17 @@ if "ALL" not in pos_filter and len(pos_filter) > 0:
 if team_filter != "ALL":
     filtered_df = filtered_df[filtered_df["Team"] == team_filter]
 
-# Metrics Header
+# Metrics Header (Cleaned of arbitrary text)
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Active Skaters Tracked", len(filtered_df))
-c2.metric("Featured Anchor", "Nathan MacKinnon")
-c3.metric("DK Price (MacKinnon)", "-105")
-c4.metric("Status", "🟢 Operational")
+c2.metric("Workspace Type", "NHL Scoring Props")
+c3.metric("Data Status", "Live Pricing Sync")
+c4.metric("System", "🟢 Operational")
 
 # Main Board Display
 st.subheader("Live NHL Slate & Pricing Worksheet")
 display_cols = [
-    "Player", "Team", "Pos", "Opponent", "Prop Type", 
-    "DraftKings Line", "DK Odds", "FanDuel Line", "FD Odds",
-    "L3G Points", "L3G Shots On Goal", "Matchup Rank (Def)"
+    "Player", "Team", "Pos", "Opponent", "Prop Market", "Line", 
+    "DraftKings Odds", "FanDuel Odds", "L3G Points", "L3G SOG", "Matchup Rank"
 ]
 st.dataframe(filtered_df[display_cols], use_container_width=True, hide_index=True)
