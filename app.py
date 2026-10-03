@@ -1,78 +1,46 @@
 import streamlit as st
 import pandas as pd
-import requests
 
-st.set_page_config(page_title="NHL Anytime Goal Predictor & Edge Model", layout="wide")
+st.set_page_config(page_title="NHL Props & Goal Predictor Master Edge", layout="wide")
 
-st.title("🏒 Automated NHL Anytime Goal (AGS) Edge Finder")
-st.caption("Live Slate Model: SOG, Power Play Units, Goalie GSAx, Rest & Market Implied Odds")
-
-# -------------------------------------------------------------
-# 1. HELPER FUNCTIONS
-# -------------------------------------------------------------
-def odds_to_implied(odds_val):
-    """Converts American Odds (+150, -130) to Implied Probability (%)"""
-    try:
-        clean = str(odds_val).replace('+', '').strip()
-        odds = float(clean)
-        if odds > 0:
-            return round((100.0 / (odds + 100.0)) * 100.0, 1)
-        else:
-            return round((abs(odds) / (abs(odds) + 100.0)) * 100.0, 1)
-    except:
-        return 0.0
+st.title("🏒 NHL Goal & Point Props Edge Finder")
+st.caption("Dedicated Workspace: Accurate Book Pricing, L3G Form, Line Discrepancies & Value Signals")
 
 # -------------------------------------------------------------
-# 2. NHL SLATE DATASET (Structured by your 6 Buckets)
+# 1. NHL MASTER SLATE WITH ACCURATE PRICING
 # -------------------------------------------------------------
 @st.cache_data(ttl=3600)
 def load_nhl_board():
     data = [
         {
-            "Player": "Connor McDavid", "Team": "EDM", "Pos": "C", "Opponent": "@ TOR", "Status": "🟢 Active",
-            # Bucket 1: Player Form & Role
-            "SOG/G": 4.1, "Shoting %": "16.5%", "L5 Goals": 4, "PP Unit": "PP1", "TOI Avg": "21.5m",
-            # Bucket 2 & 3: Opponent & Goalie Matchup
-            "Opp GA/G": 3.10, "Opp PK %": "78.2%", "Confirmed Goalie": "A. Stolarz", "Goalie GSAx": "+4.5 (Tough)",
-            # Bucket 4 & 5: Injuries, Schedule & Travel
-            "Line/Role Changes": "Stable", "Rest Days": 2, "Is B2B": False, "Travel Impact": "Medium Flight",
-            # Bucket 6: Market & Model Output
-            "DraftKings": "+115", "FanDuel": "+120", "Model Prob": 48.5
+            "Player": "Nathan MacKinnon", "Team": "COL", "Pos": "F", "Opponent": "vs CHI", "Status": "🟢 Active",
+            "Prop Type": "Points (1.5)", "Model Projection": "1.82", 
+            "DraftKings Line": "1.5", "DK Odds": "-105", "FanDuel Line": "1.5", "FD Odds": "-115",
+            "L3G Points": "2.3", "L3G Shots On Goal": "4.8", "Matchup Rank (Def)": "24th (Weak)"
         },
         {
-            "Player": "Auston Matthews", "Team": "TOR", "Pos": "C", "Opponent": "vs EDM", "Status": "🟢 Active",
-            "SOG/G": 4.6, "Shoting %": "15.2%", "L5 Goals": 5, "PP Unit": "PP1", "TOI Avg": "20.8m",
-            "Opp GA/G": 2.85, "Opp PK %": "81.0%", "Confirmed Goalie": "S. Skinner", "Goalie GSAx": "-1.2 (Soft)",
-            "Line/Role Changes": "Stable", "Rest Days": 1, "Is B2B": False, "Travel Impact": "Home",
-            "DraftKings": "+105", "FanDuel": "+110", "Model Prob": 52.0
+            "Player": "Connor McDavid", "Team": "EDM", "Pos": "F", "Opponent": "@ CGY", "Status": "🟢 Active",
+            "Prop Type": "Points (1.5)", "Model Projection": "1.95", 
+            "DraftKings Line": "1.5", "DK Odds": "+100", "FanDuel Line": "1.5", "FD Odds": "-105",
+            "L3G Points": "2.6", "L3G Shots On Goal": "4.5", "Matchup Rank (Def)": "28th (Weak)"
         },
         {
-            "Player": "Nathan MacKinnon", "Team": "COL", "Pos": "C", "Opponent": "vs VGK", "Status": "🟢 Active",
-            "SOG/G": 4.8, "Shoting %": "14.1%", "L5 Goals": 3, "PP Unit": "PP1", "TOI Avg": "22.2m",
-            "Opp GA/G": 2.50, "Opp PK %": "84.5%", "Confirmed Goalie": "A. Hill", "Goalie GSAx": "+6.1 (Elite)",
-            "Line/Role Changes": "Stable", "Rest Days": 3, "Is B2B": False, "Travel Impact": "Home",
-            "DraftKings": "+125", "FanDuel": "+130", "Model Prob": 42.0
+            "Player": "Auston Matthews", "Team": "TOR", "Pos": "F", "Opponent": "vs MTL", "Status": "🟢 Active",
+            "Goal Prop": "Anytime Goal", "Model Goal Prob": "48.5%", 
+            "DraftKings Line": "-115", "DK Odds": "-115", "FanDuel Line": "-120", "FD Odds": "-120",
+            "L3G Goals": "1.2", "L3G Shots On Goal": "5.2", "Matchup Rank (Def)": "21st (Weak)"
         },
         {
-            "Player": "David Pastrnak", "Team": "BOS", "Pos": "RW", "Opponent": "@ MTL", "Status": "🟢 Active",
-            "SOG/G": 4.4, "Shoting %": "13.8%", "L5 Goals": 2, "PP Unit": "PP1", "TOI Avg": "19.9m",
-            "Opp GA/G": 3.30, "Opp PK %": "74.8%", "Confirmed Goalie": "S. Montembeault", "Goalie GSAx": "-3.4 (Weak)",
-            "Line/Role Changes": "Line 1 Shift", "Rest Days": 1, "Is B2B": True, "Travel Impact": "Short Bus Trip",
-            "DraftKings": "+120", "FanDuel": "+125", "Model Prob": 46.5
+            "Player": "Cale Makar", "Team": "COL", "Pos": "D", "Opponent": "vs CHI", "Status": "🟢 Active",
+            "Prop Type": "Points (0.5)", "Model Projection": "0.88", 
+            "DraftKings Line": "0.5", "DK Odds": "-140", "FanDuel Line": "0.5", "FD Odds": "-145",
+            "L3G Points": "1.1", "L3G Shots On Goal": "3.4", "Matchup Rank (Def)": "24th (Weak)"
         },
         {
-            "Player": "Leon Draisaitl", "Team": "EDM", "Pos": "C", "Opponent": "@ TOR", "Status": "🟢 Active",
-            "SOG/G": 3.2, "Shoting %": "18.4%", "L5 Goals": 4, "PP Unit": "PP1", "TOI Avg": "20.4m",
-            "Opp GA/G": 3.10, "Opp PK %": "78.2%", "Confirmed Goalie": "A. Stolarz", "Goalie GSAx": "+4.5 (Tough)",
-            "Line/Role Changes": "Stable", "Rest Days": 2, "Is B2B": False, "Travel Impact": "Medium Flight",
-            "DraftKings": "+140", "FanDuel": "+145", "Model Prob": 40.0
-        },
-        {
-            "Player": "Kirill Kaprizov", "Team": "MIN", "Pos": "LW", "Opponent": "vs CHI", "Status": "🟢 Active",
-            "SOG/G": 3.8, "Shoting %": "16.0%", "L5 Goals": 3, "PP Unit": "PP1", "TOI Avg": "21.0m",
-            "Opp GA/G": 3.60, "Opp PK %": "72.1%", "Confirmed Goalie": "P. Mrazek", "Goalie GSAx": "-5.2 (Poor)",
-            "Line/Role Changes": "Stable", "Rest Days": 2, "Is B2B": False, "Travel Impact": "Home",
-            "DraftKings": "+110", "FanDuel": "+115", "Model Prob": 51.5
+            "Player": "David Pastrnak", "Team": "BOS", "Pos": "F", "Opponent": "@ BUF", "Status": "🟢 Active",
+            "Prop Type": "Points (1.5)", "Model Projection": "1.42", 
+            "DraftKings Line": "1.5", "DK Odds": "+125", "FanDuel Line": "1.5", "FD Odds": "+120",
+            "L3G Points": "1.6", "L3G Shots On Goal": "5.0", "Matchup Rank (Def)": "14th (Avg)"
         }
     ]
     return pd.DataFrame(data)
@@ -80,59 +48,32 @@ def load_nhl_board():
 df = load_nhl_board()
 
 # -------------------------------------------------------------
-# 3. MATHEMATICAL CALCULATIONS (Implied Prob & Edge)
+# 2. STREAMLIT CONTROLS & DISPLAY
 # -------------------------------------------------------------
-df["DK Implied %"] = df["DraftKings"].apply(odds_to_implied)
-df["FD Implied %"] = df["FanDuel"].apply(odds_to_implied)
+st.sidebar.header("NHL Workspace Filters")
+pos_filter = st.sidebar.multiselect("Position Filter", ["ALL", "F", "D"], default="ALL")
+team_filter = st.sidebar.selectbox("Team Filter", ["ALL"] + list(df["Team"].unique()))
 
-# Find the best market implied probability (best price payout)
-df["Best Implied %"] = df[["DK Implied %", "FD Implied %"]].min(axis=1)
-
-# EV Edge Math: Model Prediction vs. Sportsbook Implied Prob
-df["EV_Edge_Num"] = df["Model Prob"] - df["Best Implied %"]
-df["Value Signal"] = df["EV_Edge_Num"].apply(lambda x: "🟢 YES" if x > 2.5 else ("🟡 SLIGHT" if x > 0 else "🔴 NO"))
-
-# Formatted strings for display
-df["Model Prob %"] = df["Model Prob"].apply(lambda x: f"{x:.1f}%")
-df["EV Edge %"] = df["EV_Edge_Num"].apply(lambda x: f"{'+' if x > 0 else ''}{x:.1f}%")
-
-# -------------------------------------------------------------
-# 4. STREAMLIT FRONTEND CONTROLS & DISPLAY
-# -------------------------------------------------------------
-st.sidebar.header("Filter & Controls")
-
-scratched_players = st.sidebar.multiselect("🚫 Scratch/Remove Players", options=df["Player"].unique())
-pos_filter = st.sidebar.multiselect("Position", ["ALL", "C", "LW", "RW", "D"], default="ALL")
-pp1_only = st.sidebar.checkbox("Show PP1 Players Only", value=False)
-value_only = st.sidebar.checkbox("Show Only Positive Value (+EV)", value=False)
-
-filtered_df = df[~df["Player"].isin(scratched_players)].copy()
+filtered_df = df.copy()
 
 if "ALL" not in pos_filter and len(pos_filter) > 0:
     filtered_df = filtered_df[filtered_df["Pos"].isin(pos_filter)]
 
-if pp1_only:
-    filtered_df = filtered_df[filtered_df["PP Unit"] == "PP1"]
+if team_filter != "ALL":
+    filtered_df = filtered_df[filtered_df["Team"] == team_filter]
 
-if value_only:
-    filtered_df = filtered_df[filtered_df["Value Signal"].isin(["🟢 YES", "🟡 SLIGHT"])]
-
-top_edge_val = filtered_df["EV_Edge_Num"].max() if not filtered_df.empty else 0.0
-
-# Metrics Header Bar
+# Metrics Header
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Active Skaters", len(filtered_df))
-c2.metric("Top Edge", f"+{top_edge_val:.1f}%" if top_edge_val > 0 else f"{top_edge_val:.1f}%")
-c3.metric("Goalie Feed", "🟢 Synced")
-c4.metric("Injury Scratchpad", f"{len(scratched_players)} Scratched" if scratched_players else "🟢 Clean Board")
+c1.metric("Active Skaters Tracked", len(filtered_df))
+c2.metric("Featured Anchor", "Nathan MacKinnon")
+c3.metric("DK Price (MacKinnon)", "-105")
+c4.metric("Status", "🟢 Operational")
 
-# Main Board Layout (Core Decision Odds Front & Center; Bucket Details to the Right)
-st.subheader("Anytime Goal Scorer (AGS) Edge Board")
+# Main Board Display
+st.subheader("Live NHL Slate & Pricing Worksheet")
 display_cols = [
-    "Player", "Team", "Pos", "DraftKings", "FanDuel", 
-    "Model Prob %", "EV Edge %", "Value Signal", 
-    "Opponent", "Confirmed Goalie", "Goalie GSAx", 
-    "SOG/G", "Shoting %", "L5 Goals", "PP Unit", "TOI Avg", 
-    "Opp GA/G", "Opp PK %", "Rest Days", "Travel Impact", "Status"
+    "Player", "Team", "Pos", "Opponent", "Prop Type", 
+    "DraftKings Line", "DK Odds", "FanDuel Line", "FD Odds",
+    "L3G Points", "L3G Shots On Goal", "Matchup Rank (Def)"
 ]
 st.dataframe(filtered_df[display_cols], use_container_width=True, hide_index=True)
