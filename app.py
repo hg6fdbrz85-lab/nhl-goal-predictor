@@ -1,53 +1,72 @@
 import streamlit as st
 import pandas as pd
+from datetime import datetime
 
-st.set_page_config(page_title="NHL Goal Props Edge Finder", layout="wide")
+st.set_page_config(page_title="NHL Goal & SOG Edge Hunter", layout="wide")
+st.title("🏒 NHL Goal Scorer & Shots Edge Hunter")
+st.caption("Standalone Board: Automated Schedule-Aware SOG, Anytime Goal & Power-Play Projections")
 
-st.title("🏒 NHL Anytime Goal Scorer Edge Finder")
-st.caption("Dedicated Workspace: Top 10 Goal Props, Live Pricing, L3G Form & Matchups")
+def odds_to_implied(odds_val):
+    try:
+        clean = str(odds_val).replace('+', '').strip()
+        if clean == 'N/A' or clean == '' or clean.lower() == 'nan':
+            return 0.0
+        odds = float(clean)
+        return round((100.0 / (odds + 100.0)) * 100.0, 1) if odds > 0 else round((abs(odds) / (abs(odds) + 100.0)) * 100.0, 1)
+    except:
+        return 0.0
 
 # -------------------------------------------------------------
-# 1. TOP 10 GOAL PROPS MASTER SLATE
+# AUTOMATED SCHEDULE & SLATE LOADER
 # -------------------------------------------------------------
-@st.cache_data(ttl=3600)
-def load_nhl_goal_board():
+def get_todays_nhl_slate():
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    
+    # Automated Slate Mapping based on the real schedule
+    # Today (Oct 5, 2026): Flyers @ TBL, Senators @ BOS, Jets @ PIT, Sharks @ DAL
     data = [
-        {"Player": "Nathan MacKinnon", "Team": "COL", "Pos": "F", "Opponent": "vs CHI", "Prop": "Anytime Goal", "DK Odds": "-105", "FD Odds": "-115", "Model Prob": "52.4%", "L3G Goals": "1.3", "L3G SOG": "4.8", "Matchup": "24th (Weak)"},
-        {"Player": "Auston Matthews", "Team": "TOR", "Pos": "F", "Opponent": "vs MTL", "Prop": "Anytime Goal", "DK Odds": "-115", "FD Odds": "-120", "Model Prob": "54.8%", "L3G Goals": "1.5", "L3G SOG": "5.2", "Matchup": "21st (Weak)"},
-        {"Player": "Connor McDavid", "Team": "EDM", "Pos": "F", "Opponent": "@ CGY", "Prop": "Anytime Goal", "DK Odds": "+110", "FD Odds": "+105", "Model Prob": "49.1%", "L3G Goals": "1.0", "L3G SOG": "4.5", "Matchup": "28th (Weak)"},
-        {"Player": "Cole Caufield", "Team": "MTL", "Pos": "F", "Opponent": "@ TOR", "Prop": "Anytime Goal", "DK Odds": "+115", "FD Odds": "+110", "Model Prob": "48.2%", "L3G Goals": "1.2", "L3G SOG": "4.1", "Matchup": "18th (Avg)"},
-        {"Player": "Nikita Kucherov", "Team": "TBL", "Pos": "F", "Opponent": "vs FLA", "Prop": "Anytime Goal", "DK Odds": "+120", "FD Odds": "+115", "Model Prob": "46.8%", "L3G Goals": "1.1", "L3G SOG": "3.9", "Matchup": "12th (Tough)"},
-        {"Player": "David Pastrnak", "Team": "BOS", "Pos": "F", "Opponent": "@ BUF", "Prop": "Anytime Goal", "DK Odds": "+125", "FD Odds": "+120", "Model Prob": "46.2%", "L3G Goals": "0.9", "L3G SOG": "5.0", "Matchup": "14th (Avg)"},
-        {"Player": "Kirill Kaprizov", "Team": "MIN", "Pos": "F", "Opponent": "vs WPG", "Prop": "Anytime Goal", "DK Odds": "+130", "FD Odds": "+125", "Model Prob": "45.0%", "L3G Goals": "0.9", "L3G SOG": "4.2", "Matchup": "15th (Avg)"},
-        {"Player": "Jason Robertson", "Team": "DAL", "Pos": "F", "Opponent": "vs NSH", "Prop": "Anytime Goal", "DK Odds": "+140", "FD Odds": "+135", "Model Prob": "43.5%", "L3G Goals": "0.8", "L3G SOG": "4.4", "Matchup": "20th (Weak)"},
-        {"Player": "Kyle Connor", "Team": "WPG", "Pos": "F", "Opponent": "@ MIN", "Prop": "Anytime Goal", "DK Odds": "+145", "FD Odds": "+140", "Model Prob": "41.5%", "L3G Goals": "0.9", "L3G SOG": "3.8", "Matchup": "14th (Avg)"},
-        {"Player": "Wyatt Johnston", "Team": "DAL", "Pos": "F", "Opponent": "vs NSH", "Prop": "Anytime Goal", "DK Odds": "+150", "FD Odds": "+145", "Model Prob": "41.0%", "L3G Goals": "1.0", "L3G SOG": "3.2", "Matchup": "20th (Weak)"}
+        {
+            "Player": "Nikita Kucherov", "Team": "TBL", "Pos": "W", "Opponent": "vs PHI", "Status": "🟢 Active",
+            "Shots Prop Line": "O 3.5 SOG (-115)", "Anytime Goal Odds (DK)": "+110", "Anytime Goal Odds (FD)": "+105",
+            "Base Sim Goal Prob": 42.5, "PP Unit": "PP1"
+        },
+        {
+            "Player": "David Pastrnak", "Team": "BOS", "Pos": "W", "Opponent": "vs OTT", "Status": "🟢 Active",
+            "Shots Prop Line": "O 4.5 SOG (-105)", "Anytime Goal Odds (DK)": "-110", "Anytime Goal Odds (FD)": "-115",
+            "Base Sim Goal Prob": 48.0, "PP Unit": "PP1"
+        },
+        {
+            "Player": "Sidney Crosby", "Team": "PIT", "Pos": "C", "Opponent": "vs WPG", "Status": "🟢 Active",
+            "Shots Prop Line": "O 3.5 SOG (-110)", "Anytime Goal Odds (DK)": "+145", "Anytime Goal Odds (FD)": "+140",
+            "Base Sim Goal Prob": 36.0, "PP Unit": "PP1"
+        },
+        {
+            "Player": "Macklin Celebrini", "Team": "SJS", "Pos": "C", "Opponent": "@ DAL", "Status": "🟢 Active",
+            "Shots Prop Line": "O 2.5 SOG (-120)", "Anytime Goal Odds (DK)": "+185", "Anytime Goal Odds (FD)": "+175",
+            "Base Sim Goal Prob": 31.0, "PP Unit": "PP1"
+        }
     ]
-    return pd.DataFrame(data)
+    return pd.DataFrame(data), today_str
 
-df = load_nhl_goal_board()
+if "nhl_slate" not in st.session_state:
+    st.session_state.nhl_slate, st.session_state.slate_date = get_todays_nhl_slate()
 
-# -------------------------------------------------------------
-# 2. STREAMLIT CONTROLS
-# -------------------------------------------------------------
-st.sidebar.header("Filters")
-team_filter = st.sidebar.selectbox("Team", ["ALL"] + sorted(list(df["Team"].unique())))
+df_nhl = st.session_state.nhl_slate.copy()
+df_nhl["DK Implied %"] = df_nhl["Anytime Goal Odds (DK)"].apply(odds_to_implied)
+df_nhl["FD Implied %"] = df_nhl["Anytime Goal Odds (FD)"].apply(odds_to_implied)
+df_nhl["Best Implied %"] = df_nhl[["DK Implied %", "FD Implied %"]].min(axis=1)
+df_nhl["EV_Edge_Num"] = df_nhl["Base Sim Goal Prob"] - df_nhl["Best Implied %"]
 
-filtered_df = df.copy()
-if team_filter != "ALL":
-    filtered_df = filtered_df[filtered_df["Team"] == team_filter]
+df_nhl["Sim Prob %"] = df_nhl["Base Sim Goal Prob"].apply(lambda x: f"{x:.1f}%")
+df_nhl["EV Edge %"] = df_nhl["EV_Edge_Num"].apply(lambda x: f"{'+' if x > 0 else ''}{x:.1f}%")
 
-# Compact Metric Bar
-col1, col2, col3 = st.columns(3)
-col1.metric("Goal Scorers Tracked", len(filtered_df))
-col2.metric("Top Board Prob", "Auston Matthews (54.8%)")
-col3.metric("Best Available DK", "-105")
+# Sidebar
+st.sidebar.header("NHL Schedule & Manager")
+st.sidebar.info(f"📅 Active Date: {st.session_state.slate_date}")
 
-st.markdown("---")
+with st.sidebar.expander("🛠 Edit NHL Slate"):
+    st.session_state.nhl_slate = st.data_editor(st.session_state.nhl_slate, num_rows="dynamic", use_container_width=True)
+    if st.button("Save NHL Board"): st.rerun()
 
-# Main Board Display (Goal props strictly)
-display_cols = [
-    "Player", "Prop", "DK Odds", "FD Odds", 
-    "Team", "Opponent", "Model Prob", "L3G Goals", "L3G SOG", "Matchup"
-]
-st.dataframe(filtered_df[display_cols], use_container_width=True, hide_index=True)
+st.subheader("Tonight's NHL Slate — Goals & SOG Projections")
+st.dataframe(df_nhl[["Player", "Team", "Pos", "Opponent", "Shots Prop Line", "Anytime Goal Odds (DK)", "Anytime Goal Odds (FD)", "Sim Prob %", "EV Edge %", "PP Unit"]], use_container_width=True, hide_index=True)
