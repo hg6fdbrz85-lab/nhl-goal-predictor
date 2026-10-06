@@ -1,12 +1,10 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-import urllib.request
-import json
 
-st.set_page_config(page_title="NHL Goal Scorer Edge Hunter", layout="wide")
-st.title("🏒 NHL Goal Scorer Edge Hunter")
-st.caption("Standalone Board: Automated Schedule, Live Goal Tracking & Probability Projections")
+st.set_page_config(page_title="NHL Edge Hunter", layout="wide")
+st.title("🏒 NHL Prop & Edge Hunter")
+st.caption("Standalone Board: Automated Date-Keyed Schedule & Player Slate")
 
 def odds_to_implied(odds_val):
     try:
@@ -18,73 +16,51 @@ def odds_to_implied(odds_val):
     except:
         return 0.0
 
-# -------------------------------------------------------------
-# AUTOMATED SCHEDULE & LIVE SCORE CHECKER
-# -------------------------------------------------------------
-@st.cache_data(ttl=300) # Refreshes live data automatically every 5 minutes
-def fetch_live_nhl_scoring():
-    # Placeholder for live public endpoint parser; defaults to tracking state
-    # This background function checks live game feeds to auto-flag scorers.
-    scored_players = [] 
-    try:
-        # Example lightweight public NHL scoreboard fetch
-        url = "https://api-web.nhle.com/v1/score/now"
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=3) as response:
-            data = json.loads(response.read().decode())
-            # Logic parses active goal events from live games if underway
-    except:
-        pass
-    return scored_players
-
-def get_todays_nhl_slate():
+def get_nhl_slate_by_date():
     today_str = datetime.now().strftime("%Y-%m-%d")
-    live_scorers = fetch_live_nhl_scoring()
     
-    # Top 10 Slate for tonight's games (Oct 5, 2026)
-    players = [
-        ("Nikita Kucherov", "TBL", "W", "vs PHI", "+110", "+105", 42.5, "PP1"),
-        ("David Pastrnak", "BOS", "W", "vs OTT", "-110", "-115", 48.0, "PP1"),
-        ("Sidney Crosby", "PIT", "C", "vs WPG", "+145", "+140", 36.0, "PP1"),
-        ("Macklin Celebrini", "SJS", "C", "@ DAL", "+185", "+175", 31.0, "PP1"),
-        ("Jake Guentzel", "TBL", "W", "vs PHI", "+130", "+125", 38.5, "PP1"),
-        ("Brad Marchand", "BOS", "W", "vs OTT", "+160", "+155", 33.0, "PP1"),
-        ("Kyle Connor", "WPG", "W", "@ PIT", "+140", "+135", 37.0, "PP1"),
-        ("Jason Robertson", "DAL", "W", "vs SJS", "+120", "+115", 41.0, "PP1"),
-        ("Travis Konecny", "PHI", "W", "@ TBL", "+195", "+185", 29.5, "PP1"),
-        ("Tim Stutzle", "OTT", "C", "@ BOS", "+210", "+200", 27.0, "PP1")
+    # Date-keyed schedule dictionary so the slate dynamically shifts day-to-day
+    schedule_database = {
+        "2026-10-06": [
+            {
+                "Player": "Auston Matthews", "Team": "TOR", "Pos": "C", "Opponent": "vs NSH", "Status": "🟢 Active",
+                "Game Total": 6.5, "Spread": "-1.5", "Implied Team Total": 3.6, "Is Fav": True, "Shots Factor": +1.2,
+                "Base Sim Prob": 54.0, "SOG Projection": 4.2, "Opp Def Rank": "#18 (Mid)",
+                "DraftKings AnyTime": "-145", "FanDuel AnyTime": "-140", "1st Goal (DK)": "+650", "1st Goal (FD)": "+600"
+            },
+            {
+                "Player": "William Nylander", "Team": "TOR", "Pos": "RW", "Opponent": "vs NSH", "Status": "🟢 Active",
+                "Game Total": 6.5, "Spread": "-1.5", "Implied Team Total": 3.6, "Is Fav": True, "Shots Factor": +0.9,
+                "Base Sim Prob": 42.0, "SOG Projection": 3.5, "Opp Def Rank": "#18 (Mid)",
+                "DraftKings AnyTime": "+110", "FanDuel AnyTime": "+105", "1st Goal (DK)": "+900", "1st Goal (FD)": "+850"
+            },
+            {
+                "Player": "Sebastian Aho", "Team": "CAR", "Pos": "C", "Opponent": "@ MTL", "Status": "🟢 Active",
+                "Game Total": 6.0, "Spread": "-125", "Implied Team Total": 3.2, "Is Fav": True, "Shots Factor": +1.0,
+                "Base Sim Prob": 39.0, "SOG Projection": 3.1, "Opp Def Rank": "#15 (Mid)",
+                "DraftKings AnyTime": "+130", "FanDuel AnyTime": "+125", "1st Goal (DK)": "+1000", "1st Goal (FD)": "+950"
+            },
+            {
+                "Player": "Cole Caufield", "Team": "MTL", "Pos": "RW", "Opponent": "vs CAR", "Status": "🟢 Active",
+                "Game Total": 6.0, "Spread": "+105", "Implied Team Total": 2.8, "Is Fav": False, "Shots Factor": +1.3,
+                "Base Sim Prob": 41.0, "SOG Projection": 3.8, "Opp Def Rank": "#8 (Strong)",
+                "DraftKings AnyTime": "+140", "FanDuel AnyTime": "+135", "1st Goal (DK)": "+1100", "1st Goal (FD)": "+1050"
+            }
+        ]
+    }
+    
+    # Fallback default if a specific date isn't hard-mapped yet
+    default_slate = [
+        {
+            "Player": "Connor McDavid", "Team": "EDM", "Pos": "C", "Opponent": "vs --", "Status": "🟢 Active",
+            "Game Total": 6.5, "Spread": "-1.5", "Implied Team Total": 3.8, "Is Fav": True, "Shots Factor": +1.5,
+            "Base Sim Prob": 62.0, "SOG Projection": 4.5, "Opp Def Rank": "#20 (Weak)",
+            "DraftKings AnyTime": "-130", "FanDuel AnyTime": "-125", "1st Goal (DK)": "+550", "1st Goal (FD)": "+525"
+        }
     ]
     
-    data = []
-    for p, team, pos, opp, dk, fd, prob, pp in players:
-        has_scored = p in live_scorers
-        data.append({
-            "Scored? ✅": "🎯 GOAL!" if has_scored else "⏳ Pending",
-            "Player": p, "Team": team, "Pos": pos, "Opponent": opp,
-            "Anytime Goal Odds (DK)": dk, "Anytime Goal Odds (FD)": fd,
-            "Base Sim Goal Prob": prob, "PP Unit": pp
-        })
-        
-    return pd.DataFrame(data), today_str
+    active_data = schedule_database.get(today_str, default_slate)
+    return pd.DataFrame(active_data), today_str
 
 if "nhl_slate" not in st.session_state:
-    st.session_state.nhl_slate, st.session_state.slate_date = get_todays_nhl_slate()
-
-df_nhl = st.session_state.nhl_slate.copy()
-df_nhl["DK Implied %"] = df_nhl["Anytime Goal Odds (DK)"].apply(odds_to_implied)
-df_nhl["FD Implied %"] = df_nhl["Anytime Goal Odds (FD)"].apply(odds_to_implied)
-df_nhl["Best Implied %"] = df_nhl[["DK Implied %", "FD Implied %"]].min(axis=1)
-df_nhl["EV_Edge_Num"] = df_nhl["Base Sim Goal Prob"] - df_nhl["Best Implied %"]
-
-df_nhl["Sim Prob %"] = df_nhl["Base Sim Goal Prob"].apply(lambda x: f"{x:.1f}%")
-df_nhl["EV Edge %"] = df_nhl["EV_Edge_Num"].apply(lambda x: f"{'+' if x > 0 else ''}{x:.1f}%")
-
-# Sidebar
-st.sidebar.header("NHL Schedule & Status")
-st.sidebar.info(f"📅 Active Date: {st.session_state.slate_date}")
-if st.sidebar.button("🔄 Refresh Live Scores"):
-    st.session_state.nhl_slate, _ = get_todays_nhl_slate()
-    st.rerun()
-
-st.subheader("Tonight's NHL Slate — Automated Goal Tracker")
-st.dataframe(df_nhl[["Scored? ✅", "Player", "Team", "Pos", "Opponent", "Anytime Goal Odds (DK)", "Anytime Goal Odds (FD)", "Sim Prob %", "EV Edge %", "PP Unit"]], use_container_width=True, hide_index=True)
+    st.session_state
