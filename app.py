@@ -19,7 +19,7 @@ def odds_to_implied(odds_val):
 def get_nhl_slate_by_date():
     today_str = datetime.now().strftime("%Y-%m-%d")
     
-    # Date-keyed schedule dictionary so the slate dynamically shifts day-to-day
+    # Date-keyed schedule dictionary mapping live games for today
     schedule_database = {
         "2026-10-06": [
             {
@@ -63,4 +63,33 @@ def get_nhl_slate_by_date():
     return pd.DataFrame(active_data), today_str
 
 if "nhl_slate" not in st.session_state:
-    st.session_state
+    st.session_state.nhl_slate, st.session_state.nhl_date = get_nhl_slate_by_date()
+
+df = st.session_state.nhl_slate.copy()
+df["Sim Prob"] = df["Base Sim Prob"] + df["Shots Factor"]
+df["DK Implied %"] = df["DraftKings AnyTime"].apply(odds_to_implied)
+df["FD Implied %"] = df["FanDuel AnyTime"].apply(odds_to_implied)
+df["Best Implied %"] = df[["DK Implied %", "FD Implied %"]].min(axis=1)
+df["EV_Edge_Num"] = df["Sim Prob"] - df["Best Implied %"]
+df["Value Signal"] = df["EV_Edge_Num"].apply(lambda x: "🟢 YES" if x > 2.5 else ("🟡 SLIGHT" if x > 0 else "🔴 NO"))
+
+df["Sim Prob %"] = df["Sim Prob"].apply(lambda x: f"{x:.1f}%")
+df["EV Edge %"] = df["EV_Edge_Num"].apply(lambda x: f"{'+' if x > 0 else ''}{x:.1f}%")
+
+st.sidebar.header("NHL Schedule & Manager")
+st.sidebar.info(f"📅 Active Date: {st.session_state.nhl_date}")
+
+with st.sidebar.expander("🛠 Edit NHL Slate"):
+    st.session_state.nhl_slate = st.data_editor(st.session_state.nhl_slate, num_rows="dynamic", use_container_width=True)
+    if st.button("Save NHL Board"): st.rerun()
+
+st.subheader("Active NHL Slate — Goal Scoring & Analytics Board")
+st.dataframe(
+    df[[
+        "Player", "Team", "Pos", "Opponent", "Game Total", "Spread", "Implied Team Total",
+        "DraftKings AnyTime", "FanDuel AnyTime", "Sim Prob %", "EV Edge %", "Value Signal", 
+        "SOG Projection", "Opp Def Rank", "1st Goal (DK)", "1st Goal (FD)"
+    ]], 
+    use_container_width=True, 
+    hide_index=True
+)
