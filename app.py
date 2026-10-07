@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
-st.set_page_config(page_title="NHL Edge Hunter", layout="wide")
+st.set_page_config(page_title="NHL Edge & Prop Hunter", layout="wide")
 st.title("🏒 NHL Prop & Edge Hunter")
-st.caption("Standalone Board: Automated Date-Keyed Schedule & Top 10 Player Slate")
+st.caption("Standalone Board: Bulletproof Date-Keyed Schedule & SOG/Points Analytics")
 
 def odds_to_implied(odds_val):
     try:
@@ -20,95 +20,91 @@ def get_nhl_slate_by_date():
     today_str = datetime.now().strftime("%Y-%m-%d")
     
     schedule_database = {
-        "2026-10-06": [
+        "2026-10-07": [
             {
-                "Player": "Auston Matthews", "Team": "TOR", "Pos": "C", "Opponent": "vs NSH", "Status": "🟢 Active",
-                "Game Total": 6.5, "Spread": "-1.5", "Implied Team Total": 3.6, "Is Fav": True, "Shots Factor": 1.2,
-                "Base Sim Prob": 54.0, "SOG Projection": 4.2, "Opp Def Rank": "#18 (Mid)",
-                "DraftKings AnyTime": "-145", "FanDuel AnyTime": "-140", "1st Goal (DK)": "+650", "1st Goal (FD)": "+600"
+                "Player": "Jack Hughes", "Team": "NJD", "Pos": "C", "Opponent": "vs UTA", "Status": "🟢 Active",
+                "Game Total": 6.5, "Implied Team Total": 3.5, "Shots Factor": 1.4,
+                "Base Point Prob": 68.0, "SOG Projection": 4.3, "Opp Def Rank": "#21 (Weak)",
+                "DraftKings SOG Alt (2+)": "-220", "DraftKings Points": "-140", "Anytime Goal": "-135"
             },
             {
-                "Player": "William Nylander", "Team": "TOR", "Pos": "RW", "Opponent": "vs NSH", "Status": "🟢 Active",
-                "Game Total": 6.5, "Spread": "-1.5", "Implied Team Total": 3.6, "Is Fav": True, "Shots Factor": 0.9,
-                "Base Sim Prob": 42.0, "SOG Projection": 3.5, "Opp Def Rank": "#18 (Mid)",
-                "DraftKings AnyTime": "+110", "FanDuel AnyTime": "+105", "1st Goal (DK)": "+900", "1st Goal (FD)": "+850"
+                "Player": "Kirill Kaprizov", "Team": "MIN", "Pos": "LW", "Opponent": "@ BUF", "Status": "🟢 Active",
+                "Game Total": 6.0, "Implied Team Total": 3.0, "Shots Factor": 1.2,
+                "Base Point Prob": 65.0, "SOG Projection": 4.1, "Opp Def Rank": "#14 (Mid)",
+                "DraftKings SOG Alt (2+)": "-200", "DraftKings Points": "-130", "Anytime Goal": "+115"
             },
             {
-                "Player": "Mitch Marner", "Team": "TOR", "Pos": "RW", "Opponent": "vs NSH", "Status": "🟢 Active",
-                "Game Total": 6.5, "Spread": "-1.5", "Implied Team Total": 3.6, "Is Fav": True, "Shots Factor": 0.6,
-                "Base Sim Prob": 35.0, "SOG Projection": 2.7, "Opp Def Rank": "#18 (Mid)",
-                "DraftKings AnyTime": "+160", "FanDuel AnyTime": "+155", "1st Goal (DK)": "+1200", "1st Goal (FD)": "+1100"
+                "Player": "Tage Thompson", "Team": "BUF", "Pos": "C", "Opponent": "vs MIN", "Status": "🟢 Active",
+                "Game Total": 6.0, "Implied Team Total": 3.1, "Shots Factor": 1.1,
+                "Base Point Prob": 60.0, "SOG Projection": 3.8, "Opp Def Rank": "#10 (Solid)",
+                "DraftKings SOG Alt (2+)": "-185", "DraftKings Points": "-120", "Anytime Goal": "+125"
             },
             {
-                "Player": "Filip Forsberg", "Team": "NSH", "Pos": "LW", "Opponent": "@ TOR", "Status": "🟢 Active",
-                "Game Total": 6.5, "Spread": "+1.5", "Implied Team Total": 2.9, "Is Fav": False, "Shots Factor": 1.1,
-                "Base Sim Prob": 40.0, "SOG Projection": 3.9, "Opp Def Rank": "#12 (Solid)",
-                "DraftKings AnyTime": "+135", "FanDuel AnyTime": "+130", "1st Goal (DK)": "+1000", "1st Goal (FD)": "+950"
+                "Player": "Alex DeBrincat", "Team": "DET", "Pos": "RW", "Opponent": "vs OTT", "Status": "🟢 Active",
+                "Game Total": 6.5, "Implied Team Total": 3.4, "Shots Factor": 1.0,
+                "Base Point Prob": 58.0, "SOG Projection": 3.6, "Opp Def Rank": "#19 (Mid)",
+                "DraftKings SOG Alt (2+)": "-175", "DraftKings Points": "-125", "Anytime Goal": "+135"
             },
             {
-                "Player": "Steven Stamkos", "Team": "NSH", "Pos": "C", "Opponent": "@ TOR", "Status": "🟢 Active",
-                "Game Total": 6.5, "Spread": "+1.5", "Implied Team Total": 2.9, "Is Fav": False, "Shots Factor": 1.0,
-                "Base Sim Prob": 38.0, "SOG Projection": 3.4, "Opp Def Rank": "#12 (Solid)",
-                "DraftKings AnyTime": "+150", "FanDuel AnyTime": "+145", "1st Goal (DK)": "+1100", "1st Goal (FD)": "+1050"
+                "Player": "Tim Stützle", "Team": "OTT", "Pos": "C", "Opponent": "@ DET", "Status": "🟢 Active",
+                "Game Total": 6.5, "Implied Team Total": 3.0, "Shots Factor": 0.9,
+                "Base Point Prob": 55.0, "SOG Projection": 3.4, "Opp Def Rank": "#16 (Mid)",
+                "DraftKings SOG Alt (2+)": "-160", "DraftKings Points": "+110", "Anytime Goal": "+150"
             },
             {
-                "Player": "Sebastian Aho", "Team": "CAR", "Pos": "C", "Opponent": "@ MTL", "Status": "🟢 Active",
-                "Game Total": 6.0, "Spread": "-125", "Implied Team Total": 3.2, "Is Fav": True, "Shots Factor": 1.0,
-                "Base Sim Prob": 39.0, "SOG Projection": 3.1, "Opp Def Rank": "#15 (Mid)",
-                "DraftKings AnyTime": "+130", "FanDuel AnyTime": "+125", "1st Goal (DK)": "+1000", "1st Goal (FD)": "+950"
+                "Player": "Dylan Larkin", "Team": "DET", "Pos": "C", "Opponent": "vs OTT", "Status": "🟢 Active",
+                "Game Total": 6.5, "Implied Team Total": 3.4, "Shots Factor": 0.8,
+                "Base Point Prob": 54.0, "SOG Projection": 3.1, "Opp Def Rank": "#19 (Mid)",
+                "DraftKings SOG Alt (2+)": "-155", "DraftKings Points": "+115", "Anytime Goal": "+160"
             },
             {
-                "Player": "Andrei Svechnikov", "Team": "CAR", "Pos": "RW", "Opponent": "@ MTL", "Status": "🟢 Active",
-                "Game Total": 6.0, "Spread": "-125", "Implied Team Total": 3.2, "Is Fav": True, "Shots Factor": 1.2,
-                "Base Sim Prob": 37.0, "SOG Projection": 3.6, "Opp Def Rank": "#15 (Mid)",
-                "DraftKings AnyTime": "+145", "FanDuel AnyTime": "+140", "1st Goal (DK)": "+1100", "1st Goal (FD)": "+1000"
+                "Player": "Clayton Keller", "Team": "UTA", "Pos": "RW", "Opponent": "@ NJD", "Status": "🟢 Active",
+                "Game Total": 6.5, "Implied Team Total": 2.8, "Shots Factor": 0.9,
+                "Base Point Prob": 50.0, "SOG Projection": 3.0, "Opp Def Rank": "#9 (Strong)",
+                "DraftKings SOG Alt (2+)": "-150", "DraftKings Points": "+125", "Anytime Goal": "+190"
             },
             {
-                "Player": "Cole Caufield", "Team": "MTL", "Pos": "RW", "Opponent": "vs CAR", "Status": "🟢 Active",
-                "Game Total": 6.0, "Spread": "+105", "Implied Team Total": 2.8, "Is Fav": False, "Shots Factor": 1.3,
-                "Base Sim Prob": 41.0, "SOG Projection": 3.8, "Opp Def Rank": "#8 (Strong)",
-                "DraftKings AnyTime": "+140", "FanDuel AnyTime": "+135", "1st Goal (DK)": "+1100", "1st Goal (FD)": "+1050"
+                "Player": "Matt Boldy", "Team": "MIN", "Pos": "RW", "Opponent": "@ BUF", "Status": "🟢 Active",
+                "Game Total": 6.0, "Implied Team Total": 3.0, "Shots Factor": 0.7,
+                "Base Point Prob": 48.0, "SOG Projection": 2.8, "Opp Def Rank": "#14 (Mid)",
+                "DraftKings SOG Alt (2+)": "-140", "DraftKings Points": "+140", "Anytime Goal": "+180"
             },
             {
-                "Player": "Nick Suzuki", "Team": "MTL", "Pos": "C", "Opponent": "vs CAR", "Status": "🟢 Active",
-                "Game Total": 6.0, "Spread": "+105", "Implied Team Total": 2.8, "Is Fav": False, "Shots Factor": 0.7,
-                "Base Sim Prob": 32.0, "SOG Projection": 2.5, "Opp Def Rank": "#8 (Strong)",
-                "DraftKings AnyTime": "+195", "FanDuel AnyTime": "+190", "1st Goal (DK)": "+1500", "1st Goal (FD)": "+1400"
+                "Player": "Nico Hischier", "Team": "NJD", "Pos": "C", "Opponent": "vs UTA", "Status": "🟢 Active",
+                "Game Total": 6.5, "Implied Team Total": 3.5, "Shots Factor": 0.6,
+                "Base Point Prob": 47.0, "SOG Projection": 2.6, "Opp Def Rank": "#21 (Weak)",
+                "DraftKings SOG Alt (2+)": "-130", "DraftKings Points": "+150", "Anytime Goal": "+175"
             },
             {
-                "Player": "Ryan O'Reilly", "Team": "NSH", "Pos": "C", "Opponent": "@ TOR", "Status": "🟢 Active",
-                "Game Total": 6.5, "Spread": "+1.5", "Implied Team Total": 2.9, "Is Fav": False, "Shots Factor": 0.5,
-                "Base Sim Prob": 28.0, "SOG Projection": 2.2, "Opp Def Rank": "#12 (Solid)",
-                "DraftKings AnyTime": "+230", "FanDuel AnyTime": "+220", "1st Goal (DK)": "+1800", "1st Goal (FD)": "+1600"
+                "Player": "Rasmus Dahlin", "Team": "BUF", "Pos": "D", "Opponent": "vs MIN", "Status": "🟢 Active",
+                "Game Total": 6.0, "Implied Team Total": 3.1, "Shots Factor": 0.8,
+                "Base Point Prob": 42.0, "SOG Projection": 2.9, "Opp Def Rank": "#10 (Solid)",
+                "DraftKings SOG Alt (2+)": "-145", "DraftKings Points": "+160", "Anytime Goal": "+240"
             }
         ]
     }
     
-    default_slate = [
-        {
-            "Player": "Connor McDavid", "Team": "EDM", "Pos": "C", "Opponent": "vs --", "Status": "🟢 Active",
-            "Game Total": 6.5, "Spread": "-1.5", "Implied Team Total": 3.8, "Is Fav": True, "Shots Factor": 1.5,
-            "Base Sim Prob": 62.0, "SOG Projection": 4.5, "Opp Def Rank": "#20 (Weak)",
-            "DraftKings AnyTime": "-130", "FanDuel AnyTime": "-125", "1st Goal (DK)": "+550", "1st Goal (FD)": "+525"
-        }
-    ]
-    
-    active_data = schedule_database.get(today_str, default_slate)
-    return pd.DataFrame(active_data), today_str
+    # BULLETPROOF FALLBACK: If today's key isn't found, grab the most recent available date instead of crashing or showing McDavid
+    if today_str in schedule_database:
+        active_data = schedule_database[today_str]
+        active_date_used = today_str
+    else:
+        # Fallback to the latest dictionary key available so the app never blanks out
+        latest_key = sorted(schedule_database.keys())[-1]
+        active_data = schedule_database[latest_key]
+        active_date_used = f"{latest_key} (Fallback Active)"
+        
+    return pd.DataFrame(active_data), active_date_used
 
 if "nhl_slate" not in st.session_state:
     st.session_state.nhl_slate, st.session_state.nhl_date = get_nhl_slate_by_date()
 
 df = st.session_state.nhl_slate.copy()
-df["Sim Prob"] = df["Base Sim Prob"] + df["Shots Factor"]
-df["DK Implied %"] = df["DraftKings AnyTime"].apply(odds_to_implied)
-df["FD Implied %"] = df["FanDuel AnyTime"].apply(odds_to_implied)
-df["Best Implied %"] = df[["DK Implied %", "FD Implied %"]].min(axis=1)
-df["EV_Edge_Num"] = df["Sim Prob"] - df["Best Implied %"]
-df["Value Signal"] = df["EV_Edge_Num"].apply(lambda x: "🟢 YES" if x > 2.5 else ("🟡 SLIGHT" if x > 0 else "🔴 NO"))
+df["Total Point Prob"] = df["Base Point Prob"] + (df["Shots Factor"] * 2.0)
+df["DK SOG Implied %"] = df["DraftKings SOG Alt (2+)"].apply(odds_to_implied)
+df["Value Signal"] = df["Total Point Prob"].apply(lambda x: "🟢 HIGH" if x > 60 else ("🟡 MODERATE" if x > 50 else "🔴 LOW"))
 
-df["Sim Prob %"] = df["Sim Prob"].apply(lambda x: f"{x:.1f}%")
-df["EV Edge %"] = df["EV_Edge_Num"].apply(lambda x: f"{'+' if x > 0 else ''}{x:.1f}%")
+df["Point Prob %"] = df["Total Point Prob"].apply(lambda x: f"{x:.1f}%")
 
 st.sidebar.header("NHL Schedule & Manager")
 st.sidebar.info(f"📅 Active Date: {st.session_state.nhl_date}")
@@ -117,12 +113,12 @@ with st.sidebar.expander("🛠 Edit NHL Slate"):
     st.session_state.nhl_slate = st.data_editor(st.session_state.nhl_slate, num_rows="dynamic", use_container_width=True)
     if st.button("Save NHL Board"): st.rerun()
 
-st.subheader("Active NHL Slate — Top 10 Goal Scoring & Analytics Board")
+st.subheader("Active NHL Slate — SOG & Points Focus Board")
 st.dataframe(
     df[[
-        "Player", "Team", "Pos", "Opponent", "Game Total", "Spread", "Implied Team Total",
-        "DraftKings AnyTime", "FanDuel AnyTime", "Sim Prob %", "EV Edge %", "Value Signal", 
-        "SOG Projection", "Opp Def Rank", "1st Goal (DK)", "1st Goal (FD)"
+        "Player", "Team", "Pos", "Opponent", "Game Total", "Implied Team Total",
+        "SOG Projection", "DraftKings SOG Alt (2+)", "Point Prob %", "DraftKings Points", 
+        "Anytime Goal", "Opp Def Rank", "Value Signal"
     ]], 
     use_container_width=True, 
     hide_index=True
